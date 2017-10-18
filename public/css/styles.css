@@ -1,0 +1,66 @@
+body {
+    font-family: "Roboto", "Arial", sans-serif;
+    background-color: #fafafa;
+    background: url(/i/winbg.jpg);
+}
+
+/* Book */
+.book-cover {
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+
+
+/* Book Card */
+.book-card .mdl-card__content {
+    display: flex;
+    align-items: flex-start;
+}
+
+.book-card__image {
+    width: 100%;
+    max-width: 150px;
+    margin: 16px 8px 16px 16px;
+}
+
+.book-card__details {
+    margin: 16px 16px 16px 8px;
+}
+
+.book-card__title {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 1em;
+    line-height: 1.5;
+}
+
+.book-card__info p {
+    margin-bottom: .5em;
+}
+
+.book-card .mdl-card__title-text {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: .25em;
+    line-height: 1.5;
+    align-self: flex-start;
+}
+
+.book-card .mdl-card__actions {
+    margin-top: auto;
+    text-align: right;
+}
+
+
+
+/* Not Found */
+.not-found {
+    text-align: center;
+    margin-top: 3em;
+}
+
+.not-found .material-icons {
+    font-size: 4rem;
+}

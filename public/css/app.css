@@ -1,0 +1,324 @@
+body {
+    background-color: #fafafa;
+    color: #fafafa;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin: 0;
+}
+
+button {
+    background: 0 0;
+    border: none;
+    border-radius: 2px;
+    color: #757575;
+    position: relative;
+    height: 36px;
+    margin: 0;
+    min-width: 64px;
+    padding: 0 16px;
+    display: inline-block;
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    overflow: hidden;
+    will-change: box-shadow;
+    transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+    outline: none;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    line-height: 36px;
+    vertical-align: middle;
+}
+
+button:hover {
+    background-color: rgba(158,158,158,.2);
+}
+
+button:active {
+    background-color: rgba(158,158,158,.4);
+}
+
+button.icon {
+    border-radius: 50%;
+    font-size: 24px;
+    height: 32px;
+    margin-left: 0;
+    margin-right: 0;
+    min-width: 32px;
+    width: 32px;
+    padding: 0;
+    overflow: hidden;
+    line-height: normal;
+}
+
+button .material-icons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-12px,-12px);
+    line-height: 24px;
+    width: 24px;
+    vertical-align: middle;
+}
+
+input {
+    font-family: "Roboto", Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    color: #757575;
+    padding: .5em;
+    border-radius: 2px;
+    border: 1px solid lightgray;
+    outline: none;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    color: white;
+    background-color: #222;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 40px;
+    margin: 5rem auto;
+    border-bottom: #aaa 2px solid;
+    line-height: 80px;
+}
+
+/* Stats */
+.stats {
+    margin: 10px;
+}
+
+.stats table {
+    margin: auto;
+}
+
+.stats th {
+    text-align: right;
+    font-weight: normal;
+    letter-spacing: 2px;
+    font-size: .7em;
+}
+
+.stats td {
+    text-align: left;
+    font-size: 1.5rem;
+    font-family: monospace;
+}
+
+
+
+/* Stopwatch */
+.stopwatch {
+    padding: 15px 10px 5px 10px;
+}
+
+.stopwatch-time {
+    font-family: monospace;
+    font-size: 2em;
+}
+
+.stopwatch-controls button {
+    margin: 5px;
+    color: white;
+}
+
+
+/* Todo */
+.todo-list{
+    color: #333333;
+}
+.todo {
+    display: flex;
+    font-size: 1rem;
+    border-top: 1px solid rgba(0,0,0,.1);
+    background-color: #fff;
+    transition: all .2s;
+    -webkit-user-select: none;
+    user-select: none;
+    padding: 1em;
+    align-items: center;
+}
+
+.todo.completed * {
+    color: lightgray;
+}
+
+.todo.completed .todo-title {
+    text-decoration: line-through;
+}
+
+.todo .todo-title {
+    margin-right: auto;
+}
+
+.todo .checkbox {
+    margin-right: .5rem;
+}
+
+.todo button:not(.checkbox) {
+    opacity: 0;
+    transition: all .2s;
+}
+
+.todo:hover button:not(.checkbox) {
+    opacity: 1;
+}
+
+.todo-edit-form {
+    display: flex;
+    font-size: 1rem;
+    padding: .85em;
+    border-top: 1px solid rgba(0,0,0,.1);
+}
+
+.todo-edit-form input {
+    flex: 1;
+}
+
+.todo-edit-form .save {
+    margin-left: .5em;
+}
+
+/* Todo form */
+
+.todo-add-form {
+    display: flex;
+    background-color: #FAFAFA;
+    border-top: 1px solid rgba(0,0,0,.1);
+    padding: 10px;
+}
+
+.todo-add-form input {
+    flex: 1;
+    outline: none;
+    transition: all .2s;
+}
+
+.todo-add-form input:focus {
+    border: 1px solid #00d8ff;
+}
+
+.todo-add-form button {
+    margin-left: 10px;
+}
+
+p{
+    font-size: 24px;
+}
+.clr{clear: both;}
+.button{
+    padding: 7px 25px;
+    margin: 10px 10px 0 0;
+    display: inline-block;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 2px;
+    color: #fafafa;
+    background-color: rgb(33, 150, 243);
+    border: none;
+}
+
+.form-auth{
+    min-width: 700px;
+}
+
+.form-auth input { 
+    float: none;
+    margin: 20px 0;
+    border: none;
+    height: 24px;
+    font-size: 21px;
+}
+
+.form-auth .button{
+    background-color: transparent;
+    color: #333333;
+    border: #777 1px solid;
+}
+.success{
+    margin-top: 30px;
+    background-color: #00cc00;
+    padding: 10px 10px;
+    font-size: 20px;
+    color: #eee;
+
+}
+.error{
+    margin-top: 30px;
+    background-color: #fa5252;
+    padding: 10px 10px;
+    font-size: 20px;
+    color: #ddd;
+
+}
+.todo-form{
+    display: flex;
+}
+.todo-form input{
+    background-color: #eee;
+    font-size: x-large;
+    width: 80%;
+    height: 24px;
+}
+.valid_false{
+    border-color: red;
+}
+.valid_true{
+    border-color: green;
+}
+button.todo_add{
+    background-color: rgb(33,150,243);
+    width: calc(20% - 2px - 2em);
+    height: 50px;
+    border: 1px solid #fff;
+    color: #fff;
+    
+}
+button.todo_add:hover{
+    background-color: rgb(6, 91, 248);
+}
+button.enabled_false{
+    background-color: rgb(146, 147, 148);
+}
+
+/* Flex examples */
+.flex-box{
+    display: flex;
+    flex-direction: row* | column | row-reverse | column-reverse;
+}
+
+.flex-element-1 {
+    order: 1;
+}
+.flex-element-4 {
+    order: -1;
+    flex-grow: 2; /* makes 4th el bigger in 2 times more than another els */
+    flex-shrink: 2; width: 200px;   /* el will be smaller then anothers */
+    flex-basis: 200px; /* auto - el width takes from content of element; ...px - like min-width */
+
+    /* OR use:*/
+    flex: 2 200px 2; /* == flex-grow flex-basis flex-shrink */
+}
+/* Define */
+.flex-element {
+    flex-grow: 1;   /* makes all elements with same width placed on width of page, 0 by default (great for mobile devices) */
+    flex-shrink: 1; /*  */
+    flex-basis: auto;
+    align-self: auto | baseline | center | flex-end | flex-start | stretch*;
+}
+.flex-container {
+    justify-content: center; /* center the el */
+    align-items: baseline | center | flex-end | flex-start | stretch(def); /* by def makes all els height the same height and = container height */
+    align-content: flex-end | flex-start | center | space-around | space-between | stretch; /* makes els in a good view but heiht is not the equal to container height */
+}
+
+.search_field {
+    width: 100%;
+}
