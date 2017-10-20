@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import {Link, IndexLink} from 'react-router';
 import NavLink from './components/NavLink';
@@ -16,7 +17,7 @@ class App extends React.Component {
         };
     }
 /*
-    getInitialState(){
+    getInitialState(){      
         return {
 
         }
@@ -28,6 +29,7 @@ class App extends React.Component {
     }
 
     render() {
+        
         return (
             <div className="mdl-layout mdl-layout--no-drawer-button mdl-layout--fixed-header">
                 <header className="mdl-layout__header">
@@ -43,8 +45,9 @@ class App extends React.Component {
                             <NavLink to="/tasks" className="mdl-navigation__link">Tasks</NavLink>
                             <NavLink to="/about" className="mdl-navigation__link">About</NavLink>
                             <NavLink to="/pages" className="mdl-navigation__link">Pages</NavLink>
-                            { !this.state.auth ? <NavLink to="/auth" className="mdl-navigation__link">Sign in</NavLink> :
+                            { this.props.user == '' ? <NavLink to="/auth" className="mdl-navigation__link">Sign in</NavLink> :
                                 <NavLink to="/out" className="mdl-navigation__link">Sign out</NavLink> }
+                            <b>{ this.props.user }</b>
                         </nav>
                     </div>
                 </header>
@@ -57,4 +60,11 @@ class App extends React.Component {
     }
 }
 
-export default App;
+function mapStateToProps (state) {
+    return {
+        user: state.user,
+        page: state.page
+    }
+}
+
+export default connect(mapStateToProps)(App);

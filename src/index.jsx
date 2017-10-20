@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, hashHistory, IndexRoute, IndexRedirect, browserHistory } from 'react-router';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 
 import App from './App';
 import Home from './components/Home';
@@ -12,11 +14,15 @@ import NotFound from './components/NotFound';
 import Tasks from './components/Tasks';
 import Auth from './components/auth/Auth';
 
+import configureStore from './store/configureStore';
+
 import books from './data/items';
 
 const user_email = 'alex@...';
+const store = configureStore();
 
 ReactDOM.render(
+<Provider store={store}>
 <Router history={browserHistory}>
     <Route path="/" component={App} user_email={user_email}>
         <IndexRoute component={Home} />
@@ -33,6 +39,7 @@ ReactDOM.render(
         <Route path="*" component={NotFound} />
     </Route>
 </Router>
+</Provider>
 , document.getElementById('root'));
 
 /*

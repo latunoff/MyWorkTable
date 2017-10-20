@@ -1,7 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import axios from 'axios';
 
-export default class Auth extends React.Component {
+class Auth extends React.Component {
 
   constructor(props) {
     super(props);
@@ -94,7 +95,7 @@ export default class Auth extends React.Component {
 
   render() {
     return (
-      !this.state.auth
+      this.props.user == ''
       ?
     <section className="content">
       <h1 className="mdl-typography--display-1">Sign In</h1>
@@ -119,3 +120,11 @@ export default class Auth extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+    return {
+        user: state.user,
+    }
+}
+
+export default connect(mapStateToProps)(Auth);
