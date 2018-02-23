@@ -4,18 +4,23 @@ import { connect } from 'react-redux';
 import {Link, IndexLink} from 'react-router';
 import NavLink from './components/NavLink';
 import Head from './components/Head';
+import cookie from 'react-cookies';
 
 class App extends React.Component {
     
     constructor(props){
         super(props);
-
         //alert(this.props.user_email);
         this.state = {
             user_email: props.user_email,
             //auth: false
         };
     }
+
+    componentWillMount() {
+        console.log('cookie.load');
+        console.log(cookie.load('user'));
+      }
 /*
     getInitialState(){      
         return {

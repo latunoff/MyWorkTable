@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import 'bootstrap';
+import './app.scss';
+
 import { Router, Route, hashHistory, IndexRoute, IndexRedirect, browserHistory } from 'react-router';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
@@ -20,6 +23,8 @@ import books from './data/items';
 
 const user_email = 'alex@...';
 const store = configureStore();
+
+const user = JSON.parse(localStorage.getItem('user'));
 
 ReactDOM.render(
 <Provider store={store}>

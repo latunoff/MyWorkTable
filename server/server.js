@@ -4,6 +4,56 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const validator = require('express-validator');
+var CryptoJS = require("crypto-js");
+
+function insertDocument(doc, collection) {
+    //while (1) {
+        //var cursor = collection.find( {}, { _id: 1 } ).sort( { _id: -1 } ).limit(1);
+        //var seq = cursor.hasNext() ? cursor.next()._id + 1 : 1;
+        //doc._id = seq;
+        collection.aggregate({$sort: {id: -1}}, {$limit: 1}).toArray((err, result) => {
+            //console.log(result);
+            if (err) return err;
+            nextUserId = result.length > 0 ? result[0].id : 0;
+            nextUserId++;
+            doc.id = nextUserId;
+            collection.insert(doc, (err, result1) => {
+                if (err == undefined) {
+                    console.log('Doc ', doc, ' added to ', collection.s.name);
+                    return '';
+                } else {
+                    console.log(err);
+                    return err;
+                    //return res.sendStatus(500);
+                }
+            });
+        });
+        /*
+        if( results.hasWriteError() ) {
+            if( results.writeError.code == 11000 )   //dup key
+                continue;
+            else
+                console.log( "unexpected error inserting data: " + tojson( results ) );
+        }*/
+        //break;}
+}
+/*
+function getNextSequence(name, db) {
+    console.log(db.counters);
+    var ret = db.counters.findAndModify(
+        {
+            query: { _id: name },
+            update: { $inc: { seq: 1 } },
+            new: true
+        }//, (res) => console.log(res)
+    );
+    console.log(ret);
+    return ret.seq;
+}*/
+
+//console.log(CryptoJS.MD5('retuiouytre').toString());
 
 let todos = [];//require('./api/items.json');
 let users = [];//require('./api/users.json');
@@ -13,7 +63,7 @@ const app = express();
 let nextId = 1;
 let userId = 1;
 
-app.set('port', (process.env.PORT || 3000));
+app.set('port', (process.env.PORT || 3001));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -24,12 +74,20 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(cookieParser());
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(validator());
+
 //console.log('Server requested');
+//const api = require('./server/api/routes');
+//app.use('/api', api);
+
 
 var MongoClient = require('mongodb').MongoClient;
 var db;
 
-MongoClient.connect('mongodb://localhost:27017/mywt', function (err, database) {
+MongoClient.connect('mongodb://localhost:27017/mywt', (err, database) => {
     if (err) {
         return console.log(err);
     }
@@ -49,15 +107,19 @@ MongoClient.connect('mongodb://localhost:27017/mywt', function (err, database) {
         console.log('Test data inserted');
     });
     */
-    app.listen(3012,function () {
-        console.log('MongoDB API started');
-    });
+    //db.counters.insert({ _id: "tokens", seq: 0 });
+
+    app.listen(3012, () => console.log('MongoDB API started'));
+    //console.log('===', db.collection('tokens').s.name);
+
+    //db.collection('users').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("Users:\r\n"); console.log(result); });
+    db.collection('tokens').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("tokens:\r\n"); console.log(result); });
 });
 
 //get todos
 app.get('/api/items', function (req, res) {
     console.log('api/items requested');
-    db.collection('todos').find().toArray(function (err, result) {
+    db.collection('todos').find({user_id: 1}).toArray(function (err, result) {
         if(err) {
             console.log(err);
             return res.sendStatus(500);
@@ -74,7 +136,7 @@ app.post('/api/items', (req, res) => {
     //db.collection('todos').find().toArray(function (err, result) {
     db.collection('todos').aggregate({$sort: {id: -1}}, {$limit: 1}).toArray(function (err, result) {
         //console.log(result);
-        nextId = result[0].id + 1;
+        nextId = result[0].id + 1 | 1;
 
         const todo = {
             id: nextId || 1,
@@ -156,21 +218,52 @@ app.delete('/api/items/:id', (req, res) => {
     res.sendStatus(204);
 });
 
+// SIGN
+app.post('/api/signcheck', (req, res) => {
+    req.checkBody(req.cookies.user.email, 'Wrong E-Mail!').isEmail();
+    
+    res.send(req.cookies.user.email);
+});
 
 app.post('/api/signin', (req, res) => {
     //console.log(req.body);
     let user = {};//users.find(user => user.email == req.body.email && user.password == req.body.password);
-    db.collection('users').find({email: req.body.email, password: req.body.password}).toArray(function (err, res1){
+    req.checkBody('email', 'Wrong E-Mail!').isEmail();
+    let pass_hash = CryptoJS.MD5(req.body.password).toString();
+
+    db.collection('users')
+    .find({email: req.body.email, password: pass_hash})
+    .toArray(function (err, res1){
         if(err) {
             console.log(err);
             return res.sendStatus(500);
-        }
-        else{
-            if(res1.length > 0){
-                user = res1[0];
+        } else {
+            if(res1.length > 0)
+            {
+                let hash = CryptoJS.MD5("md5", res1[0].email + res1[0].password + 'salz@!#$%^&*(').toString();
+                user = {
+                    id:     res1[0].id,
+                    email:  res1[0].email,
+                    token:  hash
+                }
+                let token = {
+                    //id: getNextSequence("tokens", db),
+                    hash,
+                    valid: Date.now() + 1000*60*60*24
+                }
+                insertDocument(token, db.collection('tokens'));
+                /*
+                db.collection('tokens').insert(token, (err, result) => {
+                    if(err) {
+                        console.log(err);
+                        return res.sendStatus(500);
+                    }
+                    console.log('Token ' + token.hash + ' has created for ' + user.email + '');
+                });*/
             }
             else user = {};
             //console.log(user);
+            //res.cookie('user', user, {maxAge: 1000*60*60*24, httpOnly: true});
             res.send(user);
         }
     });
@@ -190,7 +283,7 @@ app.post('/api/signup', (req, res) => {
                 user = {
                     id: nextUserId,
                     email: req.body.email,
-                    password: req.body.password
+                    password: CryptoJS.MD5(req.body.password).toString()
                 };
 
                 users.push(user);
@@ -210,6 +303,19 @@ app.post('/api/signup', (req, res) => {
     });
     //console.log(users);
 });
+
+
+app.get('*', (req, res) => {
+    fs.readFile(`${__dirname}/build/index.html`, (error, html) => {
+        if (error) throw error;
+
+        res.setHeader('Content-Type', 'text/html');
+        res.end(html);
+    });
+});
+
+app.listen(app.get('port'), () => console.log(`Server is listening: http://localhost:${app.get('port')}`));
+
 
 
 /*
@@ -285,14 +391,3 @@ app.delete('/api/items/:id', (req, res) => {
     res.sendStatus(204);
 });
 */
-
-app.get('*', (req, res) => {
-    fs.readFile(`${__dirname}/public/index.html`, (error, html) => {
-        if (error) throw error;
-
-        res.setHeader('Content-Type', 'text/html');
-        res.end(html);
-    });
-});
-
-app.listen(app.get('port'), () => console.log(`Server is listening: http://localhost:${app.get('port')}`));

@@ -1,8 +1,22 @@
+@import "~bootstrap/scss/bootstrap";
+
+$font-family-sans-serif: 'Source Sans Pro', sans-serif !default;
+$font-family-serif:      'Source Serif Pro', serif !default;
+$font-family-monospace:  Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+$font-family-base:       $font-family-sans-serif !default;
+
+$webpack-color: rgb(145, 214, 249);
+$fontawesome-color: rgb(39, 157, 117);
+$bootstrap-color: rgb(129, 83, 204);
+$background-color: rgb(44, 59, 66);
+
 body {
     background-color: #fafafa;
     color: #fafafa;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin: 0;
+    font-family: "Roboto", "Arial", sans-serif;
+    //background: url(/i/winbg.jpg);
 }
 
 button {
@@ -233,7 +247,6 @@ p{
     float: none;
     margin: 20px 0;
     border: none;
-    height: 24px;
     font-size: 21px;
 }
 
@@ -268,11 +281,12 @@ p{
     height: 24px;
 }
 .valid_false{
-    border-color: red;
+    border: red 1px solid !important;
 }
 .valid_true{
-    border-color: green;
+    border: green 1px solid !important;
 }
+.valid_undefined { border: none; }
 button.todo_add{
     background-color: rgb(33,150,243);
     width: calc(20% - 2px - 2em);
@@ -288,10 +302,130 @@ button.enabled_false{
     background-color: rgb(146, 147, 148);
 }
 
+
+/* MDL Layout */
+.mdl-layout__content {
+    min-width: 960px;
+    margin: auto;
+}
+
+.mdl-grid{
+    color: #333333;
+}
+
+/* MDL Navigation */
+.mdl-navigation__link {
+    text-transform: uppercase;
+    position: relative;
+}
+
+.mdl-navigation__link.is-active::after {
+    height: 2px;
+    width: 100%;
+    display: block;
+    content: " ";
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    background: #ff9800;
+}
+
+
+
+/* MDL Card */
+.mdl-card__supporting-text span {
+    margin-right: 16px;
+}
+
+
+
+/* MDL Tabs */
+.mdl-tabs .mdl-tabs__tab.is-active {
+    color: rgba(0,0,0,.87);
+}
+
+.mdl-tabs .mdl-tabs__tab.is-active:after {
+    height: 2px;
+    width: 100%;
+    display: block;
+    content: " ";
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    background: #3f51b5;
+    -webkit-animation: border-expand .2s cubic-bezier(.4,0,.4,1).01s alternate forwards;
+    animation: border-expand .2s cubic-bezier(.4,0,.4,1).01s alternate forwards;
+    transition: all 1s cubic-bezier(.4,0,1,1);
+}
+
+
+
+/* Book */
+.book-cover {
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+
+
+/* Book Card */
+.book-card .mdl-card__content {
+    display: flex;
+    align-items: flex-start;
+}
+
+.book-card__image {
+    width: 100%;
+    max-width: 150px;
+    margin: 16px 8px 16px 16px;
+}
+
+.book-card__details {
+    margin: 16px 16px 16px 8px;
+}
+
+.book-card__title {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 1em;
+    line-height: 1.5;
+}
+
+.book-card__info p {
+    margin-bottom: .5em;
+}
+
+.book-card .mdl-card__title-text {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: .25em;
+    line-height: 1.5;
+    align-self: flex-start;
+}
+
+.book-card .mdl-card__actions {
+    margin-top: auto;
+    text-align: right;
+}
+
+
+
+/* Not Found */
+.not-found {
+    text-align: center;
+    margin-top: 3em;
+}
+
+.not-found .material-icons {
+    font-size: 4rem;
+}
+
+
 /* Flex examples */
 .flex-box{
     display: flex;
-    flex-direction: row* | column | row-reverse | column-reverse;
+    flex-direction: row;// | column | row-reverse | column-reverse;
 }
 
 .flex-element-1 {
@@ -311,12 +445,12 @@ button.enabled_false{
     flex-grow: 1;   /* makes all elements with same width placed on width of page, 0 by default (great for mobile devices) */
     flex-shrink: 1; /*  */
     flex-basis: auto;
-    align-self: auto | baseline | center | flex-end | flex-start | stretch*;
+    align-self: auto;// | baseline | center | flex-end | flex-start | stretch*;
 }
 .flex-container {
     justify-content: center; /* center the el */
-    align-items: baseline | center | flex-end | flex-start | stretch(def); /* by def makes all els height the same height and = container height */
-    align-content: flex-end | flex-start | center | space-around | space-between | stretch; /* makes els in a good view but heiht is not the equal to container height */
+    align-items: baseline;// | center | flex-end | flex-start | stretch(def); /* by def makes all els height the same height and = container height */
+    align-content: flex-end;// | flex-start | center | space-around | space-between | stretch; /* makes els in a good view but heiht is not the equal to container height */
 }
 
 .search_field {
