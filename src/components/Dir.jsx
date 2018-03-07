@@ -2,6 +2,7 @@ import React from 'react';
 import {Link, IndexLink} from 'react-router';
 
 function Dir(props) {
+    //console.log(props);
     const dir = props.params.dir;
     const books = props.route.books[dir];
 

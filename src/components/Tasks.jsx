@@ -10,6 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import Loader from '../components/Loader';
 
 //var container = React.createElement('div', { id: 'main' }, '');
 
@@ -20,154 +21,137 @@ import Header from './tasks/Header';
 import Item from './tasks/Item';
 import items from './tasks/items';
 import Form from './tasks/Form';
-
+import PropTypes from 'prop-types';
 
 class Tasks extends React.Component{
     constructor(props){
         super(props);
-        
-        //this.props.title = 'Items';
+        //console.log(props);
         this.state = {
-            //items: this.props.initialData,
-            //title: 'Items'
+            title: 'Items to do',
+            user: props.route.user,
+            auth: props.route.user != undefined && props.route.user.id != undefined,
             items: [],
-            itemsAll: []
+            itemsAll: [],
+            loading: true
         };
+        //console.log(this.state);
         //console.log('constructor');
         this.filterList = this.filterList.bind(this);
     }
+
+    componentWillUpdate(){
+        this.state = {
+          user: this.props.user,
+          auth: this.props.auth
+        };
+    }
     
-    componentDidMount(){
-        axios.get('/api/items')
+    componentDidMount() {
+        //console.log(this.state);
+        if (this.state.auth)
+        {
+            axios.get('/api/tasks/items/')
             .then(response => response.data)
             //.then(items => this.setState({ items }))
             .then(items => {
-                this.setState({ items });
-                this.itemsAll = items;
+                if (Array.isArray(items)) {
+                    //console.log('Items: ', items);
+                    this.setState({ items, loading: false });
+                    this.itemsAll = items;
+                } else {
+                    this.setState({ items: [], loading: false });
+                    console.log(items);
+                    // store.dispatch({
+                    //     type: 'MESSAGE_ERROR',
+                    //     message: items
+                    // });
+                    console.log('wer', store.getState());
+                }
             })
             .catch(error => console.log('App Request error: '+error));
-            //console.log(items);
-        /*
-        fetch('/api/items')
-            .then(response => response.json)
-            .then(items => this.setState({ items }))
-            .catch(error => console.log('App Request error: '+error));
-        console.log(items);
-        */
+                //console.log(items);
+            /*
+            fetch('/api/items')
+                .then(response => response.json)
+                .then(items => this.setState({ items }))
+                .catch(error => console.log('App Request error: '+error));
+            console.log(items);
+            */
+        }
     }
 
-    handleStatusChange(id){
-        axios.patch(`/api/items/${id}`)
-            .then(response => {
-                const items = this.state.items.map(item => {
-                    if(item.id === id){
-                        item = response.data;
-                    }
-                    return item;
-                });
-                this.setState({ items });
-            })
-            .catch(this.handleError);
+    handleStatusChange(id)
+    {
+        axios.patch(`/api/tasks/items/${id}`)
+        .then(response => {
+            const items = this.state.items.map(item => {
+                if(item.id === id) item = response.data;
+                return item;
+            });
+            this.setState({ items });
+        })
+        .catch(this.handleError);
     }
 
-    handleDelete(id){
-        axios.delete(`/api/items/${id}`)
-            .then( () => {
-                const items = this.itemsAll = this.state.items.filter(item => item.id !== id);
-                this.setState({ items });
-            })
-            .catch(this.handleError);
+    handleDelete(id)
+    {
+        axios.delete(`/api/tasks/items/${id}`)
+        .then( () => {
+            const items = this.itemsAll = this.state.items.filter(item => item.id !== id);
+            this.setState({ items });
+        })
+        .catch(this.handleError);
     }
-
     
-    handleAdd(title){
-        axios.post('/api/items', { title })
+    handleAdd(title)
+    {
+        if (this.state.auth)
+            axios.post('/api/tasks/items', { title })
             .then(response => response.data)
             .then(item => {
+                item.key = item.id;
                 const items = this.itemsAll = [...this.state.items, item];
                 this.setState({ items });
             })
             .catch(this.handleError);
     }
 
-    handleEdit(id, title){
+    handleEdit(id, title)
+    {
         axios.put(`/api/items/${id}`, {title} )
-            .then( response => {
-                const items = this.state.items.map(item => {
-                    if(item.id === id){
-                        item = response.data;
-                    }
-                    return item;
-                });
-
-                this.setState({ items });
-            }
-            )
-            .catch(this.handleError);
+        .then( response => {
+            //console.log(response);
+            const items = this.state.items.map(item => {
+                if(item.id === id) item = response.data;
+                return item;
+            });
+            this.setState({ items });
+        }
+        )
+        .catch(this.handleError);
     }
 
-    handleError(e){
+    handleError(e)
+    {
         console.error(e);
     }
 
-    filterList(e){
+    filterList(e)
+    {
         const items = this.itemsAll.filter(function(item){
             return item.title.toLowerCase().search(e.target.value.toLowerCase())!== -1;
         });
         this.setState({ items });
     }
 
-/*
-    handleStatusChange(id){
-        let items = this.state.items.map(item => {
-            if(item.id === id){
-                item.completed = !item.completed;
-            }
-            return item;
-        });
-
-        this.setState({ items });
-    }
-
-    handleDelete(id){
-        let items = this.state.items.filter(item => item.id !== id);
-
-        this.setState({ items });
-    }
-    
-    nextId(){
-        this._nextId = this._nextId || 4;
-        return this._nextId++;
-    }
-
-    handleAdd(title){
-        let item = {
-            id: this.nextId(),
-            title,
-            completed: false
-        }
-        
-        let items = [...this.state.items, item];
-
-        this.setState({ items });
-    }
-
-    handleEdit(id, title){
-        let items = this.state.items.map(item => {
-            if(item.id === id){
-                item.title = title;
-            }
-            return item;
-        });
-
-        this.setState({ items });
-    }
-*/
     render() {
+        let loader_class = 'loader ' + this.state.loading;
         return (
         <main>
-            <Header title={this.props.title} items={this.state.items} />
+            <Header title={this.state.title} items={this.state.items} />
             <input placeholder="Search" onChange={this.filterList} className="search_field" />
+            <div className={loader_class}><Loader /></div>
             <ReactCSSTransitionGroup component="section" className="todo-list"
                 transitionName="slide" transitionEnterTimeout={300} transitionLeaveTimeout={300}
                 transitionAppear={true} transitionAppearTimeout={700}
@@ -183,7 +167,7 @@ class Tasks extends React.Component{
                     />) }
             </ReactCSSTransitionGroup>
 
-            <Form onAdd={this.handleAdd.bind(this)} />
+            <Form onAdd={this.handleAdd.bind(this)} todos={this.state.items} />
         </main>
         );
     }
@@ -205,8 +189,8 @@ function App(props) {
 
 /*
 App.propTypes = {
-    title: React.PropTypes.string.isRequired,
-    items: React.PropTypes.array.isRequired,
+    title: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
 };
 App.defaultProps = {
     title: 'Test App',

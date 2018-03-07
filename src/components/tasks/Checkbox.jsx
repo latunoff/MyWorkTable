@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
 class Checkbox extends React.Component {
@@ -39,21 +40,7 @@ function Checkbox(props) {
 }
 
 Checkbox.protoTypes = {
-    checked: React.PropTypes.bool.isRequired
+    checked: PropTypes.bool.isRequired
 };
-
-/*
-function Checkbox(props){
-    return (
-        <button className="checkbox icon">
-            <i className="material-icons">check_box{!props.checked ? '_outline_blank' : ''}</i>
-        </button>
-    );
-}
-*/
-/*
-Checkbox.propTypes = {
-    checked: React.PropTypes.bool.isRequired
-}
-*/
+    
 export default Checkbox;

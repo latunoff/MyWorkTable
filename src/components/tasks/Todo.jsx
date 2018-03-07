@@ -2,6 +2,7 @@ import React from 'react';
 
 import Checkbox from './Checkbox';
 import Button from './Button';
+import PropTypes from 'prop-types';
 
 class Todo extends React.Component {
     constructor(props) {
@@ -51,11 +52,11 @@ class Todo extends React.Component {
 }
 
 Todo.propTypes = {
-    title: React.PropTypes.string.isRequired,
-    completed: React.PropTypes.bool.isRequired,
-    onDelete: React.PropTypes.func.isRequired,
-    onToggle: React.PropTypes.func.isRequired,
-    onEdit: React.PropTypes.func.isRequired
+    title: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired
 };
 
 export default Todo;

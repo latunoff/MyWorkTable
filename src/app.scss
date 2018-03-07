@@ -10,13 +10,18 @@ $fontawesome-color: rgb(39, 157, 117);
 $bootstrap-color: rgb(129, 83, 204);
 $background-color: rgb(44, 59, 66);
 
+#root {
+    width: 100%;
+    min-height: 480px;
+}
+
 body {
     background-color: #fafafa;
     color: #fafafa;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin: 0;
     font-family: "Roboto", "Arial", sans-serif;
-    //background: url(/i/winbg.jpg);
+    background: url(/i/winbg.jpg);
 }
 
 button {
@@ -99,9 +104,23 @@ header {
 
 h1 {
     font-size: 40px;
-    margin: 5rem auto;
+    margin: 1rem auto;
     border-bottom: #aaa 2px solid;
     line-height: 80px;
+}
+
+.mdl-layout {
+    overflow: visible;
+}
+
+.auth {
+    position: absolute;
+    left: 25%;
+    top: 70px;
+    background-color: rgba(242, 242, 242, 0.9);
+    box-shadow: #777 0 0 15px;
+    border-radius: 20px;
+    text-align: center;
 }
 
 /* Stats */
@@ -269,7 +288,10 @@ p{
     padding: 10px 10px;
     font-size: 20px;
     color: #ddd;
-
+    border-radius: 0 0 20px 20px;
+}
+.false {
+    display: none;
 }
 .todo-form{
     display: flex;
@@ -278,7 +300,7 @@ p{
     background-color: #eee;
     font-size: x-large;
     width: 80%;
-    height: 24px;
+    height: 50px;
 }
 .valid_false{
     border: red 1px solid !important;
@@ -289,7 +311,7 @@ p{
 .valid_undefined { border: none; }
 button.todo_add{
     background-color: rgb(33,150,243);
-    width: calc(20% - 2px - 2em);
+    width: calc(20%);// - 2px - 2em);
     height: 50px;
     border: 1px solid #fff;
     color: #fff;
@@ -455,4 +477,84 @@ button.enabled_false{
 
 .search_field {
     width: 100%;
+}
+
+
+$count: 10;
+$time: 2; //in seconds
+$size: 100;
+$color: #ffffff;
+
+.holder {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: #2D2F48;
+}
+
+.preloader {
+  /* size */
+  width: $size + px;
+  height: $size + px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  animation: rotatePreloader $time + s infinite ease-in;
+}
+@keyframes rotatePreloader {
+  0% {
+  transform: translateX(-50%) translateY(-50%) rotateZ(0deg);
+  }
+  100% {
+  transform: translateX(-50%) translateY(-50%) rotateZ(-360deg);
+  }
+}
+.preloader div {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.preloader div:before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  width: 10%;
+  height: 10%;
+  background-color: $color;
+  transform: translateX(-50%);
+  border-radius: 50%;
+}
+
+@for $i from 1 through $count {
+  .preloader div:nth-child(#{$i}) {
+    transform: rotateZ(((360 / $count) * ($i - 1)) + deg);
+    animation: rotateCircle + $i $time + s infinite linear;
+    z-index: $count - $i;
+  }
+  @keyframes rotateCircle#{$i} {
+    #{percentage(((50 / $count) * ($i - 1)) / 100)} {
+      opacity: 0;
+    }
+    #{percentage((((50 / $count) + 0.0001) * ($i - 1)) / 100)} {
+      opacity: 1;
+      transform: rotateZ((0 - ((360 / $count) * ($i - 2))) + deg);
+    }
+    #{percentage((((50 / $count) * ($i - 0)) + 2) / 100)} {
+      transform: rotateZ((0 - ((360 / $count) * ($i - 1))) + deg);
+    }
+    #{percentage(((50 + ((50 / $count) * ($i - 0))) + 2) / 100)} {
+      transform: rotateZ((0 - ((360 / $count) * ($i - 1))) + deg);
+    }
+    100% {
+      transform: rotateZ((0 - ((360 / $count) * ($count - 1))) + deg);
+      opacity: 1;
+    }
+  }
 }

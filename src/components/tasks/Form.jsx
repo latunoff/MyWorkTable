@@ -1,28 +1,37 @@
 import React from 'react';
 
 import Button from './Button';
+import PropTypes from 'prop-types';
+
+import { TASK } from '../../constants/tasks';
 
 class Form extends React.Component{
     constructor(props){
         super(props);
-
+        //console.log(props);
         this.state = {
             title: ''
         }; 
     }
 
-    handleSubmit(event){
+    handleSubmit(event)
+    {   
         event.preventDefault();
         let title = this.state.title;
-        if(title){
+        if (title && title.length >= TASK.NAME_MIN 
+                                && title.length <= TASK.NAME_MAX
+                                && this.props.todos.every(item => item.title != title)) {
             this.props.onAdd(title);
             this.setState({ title: '' });
         }
     }
 
-    handleChange(event){
+    handleChange(event)
+    {
         let title = event.target.value;
-        this.state.validClass = title.length > 3;
+        this.state.validClass = title.length >= TASK.NAME_MIN 
+                                && title.length <= TASK.NAME_MAX
+                                && this.props.todos.every(item => item.title != title);
         this.state.validClass ? this.state.disabled = "disabled" : this.state.disabled = '';
         this.setState({title});
     }
@@ -45,7 +54,7 @@ class Form extends React.Component{
 }
 
 Form.propTypes = {
-    onAdd: React.PropTypes.func.isRequired
+    onAdd: PropTypes.func.isRequired
 }
 
 export default Form;

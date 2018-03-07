@@ -3,6 +3,8 @@ import React from 'react';
 import Stats from './stats';
 import StopWatch from './stopwatch';
 
+import PropTypes from 'prop-types';
+
 function Header(props){
     //console.log(props);
     return (
@@ -13,9 +15,9 @@ function Header(props){
         </header>
     );
 }
-/*
+
 Header.propTypes = {
-    title: React.PropTypes.string.isRequired
+    title: PropTypes.string.isRequired
 }
-*/
+
 export default Header;

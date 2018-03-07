@@ -1,19 +1,26 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-function Button(props){
-    return (
-        <button className={props.className} onClick={props.onClick} {...props}>
-            {   props.icon ?
-                <i className="material-icons">{props.icon}</i> :
-                 props.children
-            }
-        </button>
-    );
+class Button extends React.Component{
+    constructor(props){
+        super(props);
+    }
+
+    render() {
+        return (
+            <button className={this.props.className} onClick={this.props.onClick} {...this.props}>
+                {   this.props.icon ?
+                    <i className="material-icons">{this.props.icon}</i> :
+                    this.props.children
+                }
+            </button>
+        );
+    }
 }
-/*
+
 Button.propTypes = {
-    icon: React.PropTypes.string,
-    className: React.PropTypes.string,
+    icon: PropTypes.string,
+    className: PropTypes.string,
 }
-*/
+
 export default Button;

@@ -7,8 +7,12 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const validator = require('express-validator');
 var CryptoJS = require("crypto-js");
+var dateFormat = require('dateformat');
+//var timeout = require('connect-timeout');
 
-function insertDocument(doc, collection) {
+const AUTH_TIME =  1000*60*60*24; //dateFormat(Date.now() + 1000*60*60*24, "dd.mm.yyyy, hh:MM:ss")
+
+function insertDocument(doc, collection, callback) {
     //while (1) {
         //var cursor = collection.find( {}, { _id: 1 } ).sort( { _id: -1 } ).limit(1);
         //var seq = cursor.hasNext() ? cursor.next()._id + 1 : 1;
@@ -16,16 +20,16 @@ function insertDocument(doc, collection) {
         collection.aggregate({$sort: {id: -1}}, {$limit: 1}).toArray((err, result) => {
             //console.log(result);
             if (err) return err;
-            nextUserId = result.length > 0 ? result[0].id : 0;
-            nextUserId++;
-            doc.id = nextUserId;
+            nextId = result.length > 0 ? result[0].id : 0;
+            nextId++;
+            doc.id = nextId;
             collection.insert(doc, (err, result1) => {
                 if (err == undefined) {
                     console.log('Doc ', doc, ' added to ', collection.s.name);
-                    return '';
+                    callback(doc);
                 } else {
                     console.log(err);
-                    return err;
+                    callback(err);
                     //return res.sendStatus(500);
                 }
             });
@@ -61,9 +65,9 @@ let users = [];//require('./api/users.json');
 const app = express();
 
 let nextId = 1;
-let userId = 1;
+let userId = undefined;
 
-app.set('port', (process.env.PORT || 3001));
+app.set('port', (process.env.PORT || 3000));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -112,56 +116,94 @@ MongoClient.connect('mongodb://localhost:27017/mywt', (err, database) => {
     app.listen(3012, () => console.log('MongoDB API started'));
     //console.log('===', db.collection('tokens').s.name);
 
-    //db.collection('users').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("Users:\r\n"); console.log(result); });
-    db.collection('tokens').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("tokens:\r\n"); console.log(result); });
+    //db.collection('tokens').remove();
+    db.collection('users').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("Users:\r\n"); console.log(result); });
+    db.collection('tokens').find({id: {$gt: 0}}).toArray(function (err, result) { console.log("tokens:\n", result); });
+});
+
+//app.get(/^\/api\/([0-9a-z]{32})\/(.*)$/, (req, res) => { console.log(req); });
+//app.get('*/:token', (req, res) => { console.log(req.params); });
+/*
+function checkToken(req) {
+    const token = req.cookies.userToken;
+    console.log('checkToken ' + token + ' ...');
+    return db.collection('tokens').find({hash: token, valid: {$gt: Date.now()}}).toArray((err, result) => { 
+        console.log('Token user# ' + result[0].userId);
+        if (result.length > 0) return result[0].userId;
+        else return 0;
+    });
+}
+*/
+/*
+function myMiddleware (req, res, next) {
+    if (req.method === 'GET') { 
+        // Do some code
+    }
+    // keep executing the router middleware
+    next()
+}
+app.use(myMiddleware)
+*/
+
+app.all(/^\/api\/(.*)$/, (req, res, next) =>
+{
+    console.log('Requested: ' + req.url, req.params);
+    if (req.params[0] != 'signin' && req.params[0] != 'signup')
+    {
+        const token = req.cookies.userToken;
+        console.log('checkToken ' + token + ' ...');
+        db.collection('tokens').find({hash: token, valid: {$gt: Date.now()}}).toArray((err, result) => {
+            if (result.length > 0) {
+                console.log('Token user# ' + result[0].userId);
+                userId = result[0].userId;
+                next();
+            } else {
+                // sign out
+                console.log("token wrong");
+                res.send("token wrong");
+            }
+        });
+    }
+    else next();
 });
 
 //get todos
-app.get('/api/items', function (req, res) {
-    console.log('api/items requested');
-    db.collection('todos').find({user_id: 1}).toArray(function (err, result) {
-        if(err) {
-            console.log(err);
-            return res.sendStatus(500);
-        }
-
-        todos = result;
-
-        res.send(result);
-    });
-});
-
-// add new todo
-app.post('/api/items', (req, res) => {
-    //db.collection('todos').find().toArray(function (err, result) {
-    db.collection('todos').aggregate({$sort: {id: -1}}, {$limit: 1}).toArray(function (err, result) {
-        //console.log(result);
-        nextId = result[0].id + 1 | 1;
-
-        const todo = {
-            id: nextId || 1,
-            user_id: 1,
-            title: req.body.title,
-            completed: false
-        };
-        console.log(todo);
-    
-        db.collection('todos').insert(todo, function (err, result) {
+app.get('/api/tasks/items', function (req, res) {
+    if (userId != undefined)
+    {
+        console.log('user#: ' + userId);
+        db.collection('todos').find({user_id: userId}).toArray(function (err, result) {
             if(err) {
                 console.log(err);
                 return res.sendStatus(500);
             }
-            console.log('New todo ' + todo.title + ' inserted');
-        });
-
-        todos.push(todo);
     
+            todos = result;
+    
+            //res.send(result);
+            res.setTimeout(1000, () => res.send(result));
+        });
+    }
+});
+
+// add new todo
+app.post('/api/tasks/items', (req, res) => {
+    console.log('Todo adding ', req.body);
+    const todo = {
+        user_id: userId,
+        title: req.body.title,
+        completed: false
+    };
+    insertDocument(todo, db.collection('todos'), (newtodo) => {
+        todo.id = newtodo.id;
+        console.log('Todo added:', todo);
+        todos.push(todo);
         res.send(todo);
     });
 });
 
 // save todo
-app.put('/api/items/:id', (req, res) => {
+app.put('/api/tasks/items/:id', (req, res) => {
     const todo = todos.find(todo => todo.id == req.params.id);
 
     if (!todo) return res.sendStatus(404);
@@ -182,7 +224,7 @@ app.put('/api/items/:id', (req, res) => {
 });
 
 // toggle
-app.patch('/api/items/:id', (req, res) => {
+app.patch('/api/tasks/items/:id', (req, res) => {
     const todo = todos.find(todo => todo.id == req.params.id);
 
     if (!todo) return res.sendStatus(404);
@@ -200,7 +242,7 @@ app.patch('/api/items/:id', (req, res) => {
     res.json(todo);
 });
 
-app.delete('/api/items/:id', (req, res) => {
+app.delete('/api/tasks/items/:id', (req, res) => {
     const index = todos.findIndex(todo => todo.id == req.params.id);
     
     if (index === -1) return res.sendStatus(404);
@@ -226,7 +268,7 @@ app.post('/api/signcheck', (req, res) => {
 });
 
 app.post('/api/signin', (req, res) => {
-    //console.log(req.body);
+    console.log('Check user: ', req.body);
     let user = {};//users.find(user => user.email == req.body.email && user.password == req.body.password);
     req.checkBody('email', 'Wrong E-Mail!').isEmail();
     let pass_hash = CryptoJS.MD5(req.body.password).toString();
@@ -238,70 +280,69 @@ app.post('/api/signin', (req, res) => {
             console.log(err);
             return res.sendStatus(500);
         } else {
+            console.log('User found', res1);
             if(res1.length > 0)
             {
-                let hash = CryptoJS.MD5("md5", res1[0].email + res1[0].password + 'salz@!#$%^&*(').toString();
+                let hash = CryptoJS.MD5(res1[0].email + res1[0].password + Math.random().toString() + 'salz@!#$%^&*(').toString();
                 user = {
                     id:     res1[0].id,
                     email:  res1[0].email,
                     token:  hash
                 }
                 let token = {
-                    //id: getNextSequence("tokens", db),
+                    userId: user.id,
                     hash,
-                    valid: Date.now() + 1000*60*60*24
+                    valid: Date.now() + AUTH_TIME
                 }
-                insertDocument(token, db.collection('tokens'));
-                /*
-                db.collection('tokens').insert(token, (err, result) => {
-                    if(err) {
-                        console.log(err);
-                        return res.sendStatus(500);
-                    }
-                    console.log('Token ' + token.hash + ' has created for ' + user.email + '');
-                });*/
+                insertDocument(token, db.collection('tokens'), () => res.send(user));
             }
-            else user = {};
-            //console.log(user);
+            else {
+                user = {};
+                res.send(user);
+            }
             //res.cookie('user', user, {maxAge: 1000*60*60*24, httpOnly: true});
-            res.send(user);
         }
     });
 });
 
-var nextUserId;
-app.post('/api/signup', (req, res) => {
-    //console.log(req.body);
-    let user = {};//users.find(user => user.email == req.body.email);
-    db.collection('users').find({email: req.body.email}).toArray(function (err, res1) {
-        if(res1.length == 0){
-            db.collection('users').aggregate({$sort: {id: -1}}, {$limit: 1}).toArray(function (err, result) {
-                //console.log(result);
-                nextUserId = result.length > 0 ? result[0].id : 0;
-                nextUserId++;
-    
-                user = {
-                    id: nextUserId,
-                    email: req.body.email,
-                    password: CryptoJS.MD5(req.body.password).toString()
-                };
+app.post('/api/signout', (req, res) => {
+    //const token = req.body.token;
+    const token = req.cookies.userToken;
+    console.log('Signed out: ' + token);
+    db.collection('tokens').remove({ hash: token });
+    res.send({});
+});
 
-                users.push(user);
-                //console.log(user);
-                
-                db.collection('users').insert(user, function (err, result) {
-                    if(err) {
-                        console.log(err);
-                        return res.sendStatus(500);
-                    }
-                    console.log('User ' + user.email + ' registered');
-                });
+app.post('/api/signup', (req, res) => {
+    console.log('signup', req.body);
+    db.collection('users').find({email: req.body.email}).toArray(function (err, res1) {
+        if (res1.length == 0) {
+            let user = {
+                email: req.body.email,
+                password: CryptoJS.MD5(req.body.password).toString()
+            };
+            insertDocument(user, db.collection('users'), (newuser) => {
+
+                console.log('User registered:\n', user);
+
+                const hash = CryptoJS.MD5(user.email + user.password + Math.random().toString() + 'salz@!#$%^&*(').toString();
+
+                const token = {
+                    userId: newuser.id,
+                    hash,
+                    valid: Date.now() + AUTH_TIME
+                }
+                insertDocument(token, db.collection('tokens'), () => {});
+                console.log('token added:\n', token);
+
+                user.id = newuser.id;
+                user.token = hash;
+                //users.push(user);
                 res.send(user);
             });
         }
-        else res.send({});
+        else res.send('User_exists');
     });
-    //console.log(users);
 });
 
 

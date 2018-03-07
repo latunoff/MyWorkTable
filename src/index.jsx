@@ -21,18 +21,33 @@ import configureStore from './store/configureStore';
 
 import books from './data/items';
 
-const user_email = 'alex@...';
+/*
+* for data transfer will be used store (Redux) and state (usuall this.state, setState) to show how both works.
+*/
+
+let user = JSON.parse(localStorage.getItem('user'));
+if (!user) user = {};
+
 const store = configureStore();
 
-const user = JSON.parse(localStorage.getItem('user'));
+/*
+function authHandler() {
+    user = {
+        id: 2,
+        email: 'test'
+    }
+    React.setState({ user });
+}
+<Route path="auth/*" component={Auth} user={user} onAuth={authHandler.bind(this)} />
+*/
 
 ReactDOM.render(
 <Provider store={store}>
 <Router history={browserHistory}>
-    <Route path="/" component={App} user_email={user_email}>
+    <Route path="/" component={App} user={user}>
         <IndexRoute component={Home} />
         <Route path="about" component={About} />
-        <Route path="tasks" component={Tasks} />
+        <Route path="tasks" component={Tasks} user={user} />
         <Route path="pages" component={Pages}>
             <IndexRedirect to="/pages/react" />
             <Route path=":dir">
@@ -40,7 +55,7 @@ ReactDOM.render(
                 <Route path=":page" component={Page} books={books} />
             </Route>
         </Route>
-        <Route path="auth" component={Auth} />
+        
         <Route path="*" component={NotFound} />
     </Route>
 </Router>

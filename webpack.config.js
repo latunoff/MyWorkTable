@@ -23,11 +23,11 @@ module.exports = {
     contentBase: 'build/', // Relative directory for base of server
     publicPath: '/',
     inline: true,
-    port: process.env.PORT || 3000, // Port Number
+    port: process.env.PORT || 3001, // Port Number
     host: '127.0.0.1', // Change to '0.0.0.0' for external facing server
     historyApiFallback: true,
     proxy: {
-      '/api': 'http://localhost:3001'
+      '/api': 'http://localhost:3000'
     }
   },
   resolve: {
